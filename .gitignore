@@ -1,0 +1,34 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# OSX
+.DS_Store
+
+# Env
+.env
+.env.*
+backend/.env
+backend/.env.*
+
+# Vercel
+.vercel
+
+# Frontend build outputs
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/next-env.d.ts
+frontend/*.tsbuildinfo
+
+# Backend build outputs
+backend/build/
+
+# Coverage
+coverage/
+
+# Misc
+*.pem

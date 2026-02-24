@@ -28,7 +28,7 @@ export default function VerifyPage() {
 
     authApi
       .verifyToken(token, email)
-      .then((res: any) => {
+      .then((res) => {
         toast.success('Signed in successfully!');
         const redirectPath = res.data?.redirectPath || '/admin/dashboard';
         router.push(redirectPath);

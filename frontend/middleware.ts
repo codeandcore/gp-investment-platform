@@ -12,6 +12,7 @@ export function middleware(request: NextRequest) {
 
   // Check for auth cookie/token
   const token =
+    request.cookies.get('auth_token')?.value ?? // backend sets this cookie
     request.cookies.get('token')?.value ??
     request.cookies.get('authToken')?.value ??
     request.cookies.get('jwt')?.value;

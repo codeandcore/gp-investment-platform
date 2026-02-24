@@ -38,7 +38,7 @@ function MultiSelect({ label, options, selected, onChange }: MultiSelectProps) {
           className={cn(
             'flex items-center gap-1.5 h-8 px-3 text-sm rounded-lg border bg-white transition-all',
             selected.length > 0
-              ? 'border-indigo-300 text-indigo-700 bg-indigo-50'
+              ? 'border-primary/30 text-primary bg-primary/10'
               : 'border-gray-300 text-gray-600 hover:border-gray-400'
           )}
         >
@@ -52,7 +52,7 @@ function MultiSelect({ label, options, selected, onChange }: MultiSelectProps) {
           {selected.length > 0 && (
             <button
               onClick={() => onChange([])}
-              className="text-xs text-indigo-600 hover:text-indigo-800"
+              className="text-xs text-primary hover:text-primary/80"
             >
               Clear
             </button>
@@ -68,6 +68,7 @@ function MultiSelect({ label, options, selected, onChange }: MultiSelectProps) {
                 checked={selected.includes(opt.value)}
                 onCheckedChange={() => toggle(opt.value)}
                 id={`ms-${opt.value}`}
+                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
               />
               <span className="text-sm text-gray-700">{opt.label}</span>
             </label>
@@ -98,7 +99,7 @@ function DateRangePicker({ from, to, onFromChange, onToChange }: DateRangeProps)
           className={cn(
             'flex items-center gap-1.5 h-8 px-3 text-sm rounded-lg border bg-white transition-all',
             hasValue
-              ? 'border-indigo-300 text-indigo-700 bg-indigo-50'
+              ? 'border-primary/30 text-primary bg-primary/10'
               : 'border-gray-300 text-gray-600 hover:border-gray-400'
           )}
         >

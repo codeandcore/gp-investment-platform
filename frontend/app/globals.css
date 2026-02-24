@@ -2,6 +2,10 @@
 
 @theme inline {
   --font-sans: var(--font-inter);
+  --color-primary: #135bec;
+  --color-background-light: #f6f6f8;
+  --color-background-dark: #101622;
+  --color-border: #e5e7eb;
 }
 
 /* Keyframes for accordion */

@@ -150,7 +150,7 @@ export function ApplicationsTable({ data, onSelectionChange, onRefresh }: Applic
         cell: ({ row }) => (
           <button
             onClick={() => router.push(`/admin/applications/${row.original._id}`)}
-            className="text-xs text-indigo-600 hover:text-indigo-800 font-medium px-2 py-1 rounded hover:bg-indigo-50 transition-colors"
+            className="text-xs text-primary hover:text-primary/80 font-medium px-2 py-1 rounded hover:bg-primary/10 transition-colors"
           >
             View
           </button>
@@ -251,11 +251,11 @@ export function ApplicationsTable({ data, onSelectionChange, onRefresh }: Applic
       <table className="w-full text-sm">
         <thead>
           {table.getHeaderGroups().map((hg) => (
-            <tr key={hg.id} className="border-b border-gray-100 bg-gray-50">
+            <tr key={hg.id} className="border-b border-gray-100 bg-slate-50">
               {hg.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap"
+                  className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap"
                   style={{ width: header.getSize() }}
                 >
                   {header.isPlaceholder
@@ -278,7 +278,7 @@ export function ApplicationsTable({ data, onSelectionChange, onRefresh }: Applic
               <tr
                 key={row.id}
                 className={`border-b border-gray-50 hover:bg-gray-50 transition-colors ${
-                  row.getIsSelected() ? 'bg-indigo-50' : ''
+                  row.getIsSelected() ? 'bg-primary/10' : ''
                 }`}
               >
                 {row.getVisibleCells().map((cell) => (
