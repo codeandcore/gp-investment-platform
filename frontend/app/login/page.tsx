@@ -1,22 +1,23 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Wand2, Mail, Lock, CheckCircle2, Loader2 } from 'lucide-react';
-import { authApi } from '@/lib/api';
-import type { Metadata } from 'next';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Wand2, Mail, Lock, CheckCircle2, Loader2 } from "lucide-react";
+import { authApi } from "@/lib/api";
+import type { Metadata } from "next";
 
 const schema = z.object({
-  email: z.string().email('Enter a valid email address'),
+  email: z.string().email("Enter a valid email address"),
 });
 type FormData = z.infer<typeof schema>;
 
 export default function LoginPage() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const {
     register,
@@ -27,14 +28,14 @@ export default function LoginPage() {
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
-    setError('');
+    setError("");
     try {
       await authApi.sendMagicLink(data.email);
       setSent(true);
     } catch (err: unknown) {
       const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        'Something went wrong. Please try again.';
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? "Something went wrong. Please try again.";
       setError(msg);
     } finally {
       setLoading(false);
@@ -62,7 +63,9 @@ export default function LoginPage() {
               <>
                 {/* Heading */}
                 <div className="text-center mb-7">
-                  <h1 className="text-2xl font-bold text-gray-900">Sign in to Admin Console</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    Sign in to Admin Console
+                  </h1>
                   <p className="text-sm text-gray-500 mt-2">
                     Enter your email to receive a secure magic link.
                   </p>
@@ -77,7 +80,7 @@ export default function LoginPage() {
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <input
-                        {...register('email')}
+                        {...register("email")}
                         type="email"
                         placeholder="name@company.com"
                         autoComplete="email"
@@ -85,7 +88,9 @@ export default function LoginPage() {
                       />
                     </div>
                     {errors.email && (
-                      <p className="text-xs text-red-500 mt-1.5">{errors.email.message}</p>
+                      <p className="text-xs text-red-500 mt-1.5">
+                        {errors.email.message}
+                      </p>
                     )}
                   </div>
 
@@ -103,7 +108,7 @@ export default function LoginPage() {
                     {loading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : null}
-                    {loading ? 'Sending…' : 'Send magic link'}
+                    {loading ? "Sending…" : "Send magic link"}
                   </button>
                 </form>
 
@@ -121,15 +126,21 @@ export default function LoginPage() {
                     <CheckCircle2 className="h-9 w-9 text-green-500" />
                   </div>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 mb-2">Check your email</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">
+                  Check your email
+                </h2>
                 <p className="text-sm text-gray-500 leading-relaxed">
-                  We sent a sign-in link to{' '}
-                  <span className="font-semibold text-gray-800">{getValues('email')}</span>.
+                  We sent a sign-in link to{" "}
+                  <span className="font-semibold text-gray-800">
+                    {getValues("email")}
+                  </span>
+                  .
                   <br />
                   Click it to access the Admin Console.
                 </p>
                 <p className="text-xs text-gray-400 mt-4">
-                  Link expires in 15 minutes. Check your spam folder if you don&apos;t see it.
+                  Link expires in 15 minutes. Check your spam folder if you
+                  don&apos;t see it.
                 </p>
                 <button
                   onClick={() => setSent(false)}
@@ -144,8 +155,11 @@ export default function LoginPage() {
           {/* Footer */}
           <div className="border-t border-gray-50 bg-gray-50/50 px-8 py-4 text-center">
             <p className="text-xs text-gray-400">
-              Having trouble signing in?{' '}
-              <a href="mailto:support@gpplatform.com" className="text-indigo-600 hover:text-indigo-800 font-medium">
+              Having trouble signing in?{" "}
+              <a
+                href="mailto:support@gpplatform.com"
+                className="text-indigo-600 hover:text-indigo-800 font-medium"
+              >
                 Contact Support
               </a>
             </p>

@@ -1,25 +1,24 @@
-import axios from 'axios';
+import axios from "axios";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002";
 
 export const api = axios.create({
   baseURL: `${BASE_URL}/api`,
   withCredentials: true,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
 });
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
 export const authApi = {
-  sendMagicLink: (email: string) =>
-    api.post('/auth/magic-link', { email }),
+  sendMagicLink: (email: string) => api.post("/auth/magic-link", { email }),
 
   verifyToken: (token: string, email: string) =>
     api.get(`/auth/verify?token=${token}&email=${encodeURIComponent(email)}`),
 
-  logout: () => api.post('/auth/logout'),
+  logout: () => api.post("/auth/logout"),
 
-  getMe: () => api.get('/auth/me'),
+  getMe: () => api.get("/auth/me"),
 };
 
 // ─── Applications (Admin) ────────────────────────────────────────────────────
@@ -42,7 +41,7 @@ export const applicationsApi = {
   list: (filters: ApplicationFilters = {}) => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, val]) => {
-      if (val === undefined || val === null || val === '') return;
+      if (val === undefined || val === null || val === "") return;
       if (Array.isArray(val)) {
         val.forEach((v) => params.append(key, v));
       } else {
@@ -72,23 +71,27 @@ export const applicationsApi = {
   exportCsv: (filters: ApplicationFilters = {}) => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, val]) => {
-      if (val !== undefined && val !== null && val !== '') {
+      if (val !== undefined && val !== null && val !== "") {
         params.append(key, String(val));
       }
     });
     return api.get(`/applications/export/csv?${params.toString()}`, {
-      responseType: 'blob',
+      responseType: "blob",
     });
   },
 
   bulkAction: (action: string, applicationIds: string[]) =>
-    api.post('/applications/bulk-action', { action, applicationIds }),
+    api.post("/applications/bulk-action", { action, applicationIds }),
 
-  uploadFile: (id: string, fileType: 'deck' | 'logo' | 'headshot', file: File) => {
+  uploadFile: (
+    id: string,
+    fileType: "deck" | "logo" | "headshot",
+    file: File,
+  ) => {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
     return api.post(`/applications/${id}/upload/${fileType}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: { "Content-Type": "multipart/form-data" },
     });
   },
 };
@@ -108,25 +111,38 @@ export interface GpStep1Payload {
 
 export const gpApplicationsApi = {
   /**
-   * Get the logged-in GP's own application (or 404 if not created yet).
-   * Backend ensures a draft is created on first magic-link login.
+   * Create or get the logged-in GP's own application draft (idempotent).
    */
-  getMy: () => api.get('/applications/my'),
+  createOrGet: () => api.post("/applications"),
+
+  /**
+   * Discard current draft and create a fresh one.
+   */
+  reset: () => api.post("/applications/reset"),
+
+  /**
+   * Get the logged-in GP's own application (or 404 if not created yet).
+   */
+  getMy: () => api.get("/applications/my"),
 
   /**
    * Save a specific step of the GP application.
-   * Currently we only map Step 1 fields on the backend, but the
-   * endpoint supports /step/1-4.
    */
   saveStep: (applicationId: string, step: number, data: unknown) =>
     api.put(`/applications/${applicationId}/step/${step}`, data),
+
+  /**
+   * Final submission of the application.
+   */
+  submit: (applicationId: string) =>
+    api.post(`/applications/${applicationId}/submit`),
 };
 
 // ─── Reviewers ───────────────────────────────────────────────────────────────
 
 export const reviewersApi = {
   assign: (applicationIds: string[], reviewerIds: string[]) =>
-    api.post('/reviewers/assign', { applicationIds, reviewerIds }),
+    api.post("/reviewers/assign", { applicationIds, reviewerIds }),
 
-  getMyAssignments: () => api.get('/reviewers/assignments'),
+  getMyAssignments: () => api.get("/reviewers/assignments"),
 };
