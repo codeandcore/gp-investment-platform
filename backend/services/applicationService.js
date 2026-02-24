@@ -108,10 +108,22 @@ async function updateApplicationStep(applicationId, userId, stepNumber, stepData
 
     // Map step number to fields
     const stepFieldMap = {
-        1: ['companyName', 'primaryContactName', 'primaryContactEmail', 'primaryContactPhone', 'companyWebsite', 'headquarters', 'yearFounded', 'legalStructure'],
-        2: ['teamMembers', 'teamSize'],
+        1: [
+            'companyName',
+            'primaryContactName',
+            'primaryContactEmail',
+            'primaryContactPhone',
+            'companyWebsite',
+            'headquarters',
+            'yearFounded',
+            'legalStructure',
+        ],
+        // Step 2: team composition + strategy / focus fields
+        2: ['teamMembers', 'teamSize', 'strategy'],
+        // Step 3: strategy fine-tuning
         3: ['strategy'],
-        4: [],  // Step 4 only handles file uploads separately
+        // Step 4 only handles file uploads separately
+        4: [],
     };
 
     const allowedFields = stepFieldMap[stepNumber] || [];
