@@ -93,6 +93,35 @@ export const applicationsApi = {
   },
 };
 
+// ─── Applications (GP-facing) ──────────────────────────────────────────────────
+
+export interface GpStep1Payload {
+  companyName?: string;
+  primaryContactName?: string;
+  primaryContactEmail?: string;
+  primaryContactPhone?: string;
+  companyWebsite?: string;
+  headquarters?: string;
+  yearFounded?: number | string;
+  legalStructure?: string;
+}
+
+export const gpApplicationsApi = {
+  /**
+   * Get the logged-in GP's own application (or 404 if not created yet).
+   * Backend ensures a draft is created on first magic-link login.
+   */
+  getMy: () => api.get('/applications/my'),
+
+  /**
+   * Save a specific step of the GP application.
+   * Currently we only map Step 1 fields on the backend, but the
+   * endpoint supports /step/1-4.
+   */
+  saveStep: (applicationId: string, step: number, data: unknown) =>
+    api.put(`/applications/${applicationId}/step/${step}`, data),
+};
+
 // ─── Reviewers ───────────────────────────────────────────────────────────────
 
 export const reviewersApi = {
