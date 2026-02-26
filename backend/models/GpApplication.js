@@ -32,6 +32,23 @@ const documentsSchema = new mongoose.Schema(
   { _id: false },
 );
 
+// ─── Ownership history entry ────────────────────────────────────────────────
+const ownershipEntrySchema = new mongoose.Schema(
+  {
+    ownerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    ownerName: { type: String, trim: true },
+    ownerEmail: { type: String, trim: true, lowercase: true },
+    startedAt: { type: Date, default: Date.now },
+    transferredBy: {
+      id: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+      name: { type: String, trim: true, default: null },
+      email: { type: String, trim: true, lowercase: true, default: null },
+    },
+    endedAt: { type: Date, default: null }, // null = current owner
+  },
+  { _id: true },
+);
+
 // ─── Step tracking schema ──────────────────────────────────────────────────────
 const stepStatusSchema = new mongoose.Schema(
   {
@@ -79,6 +96,9 @@ const gpApplicationSchema = new mongoose.Schema(
       ref: "User",
       index: true,
     },
+
+    // ── Ownership history (full transfer chain) ──
+    ownershipHistory: { type: [ownershipEntrySchema], default: [] },
 
     // ── STEP 1: Basic Info ──
     companyName: { type: String, trim: true, index: true },

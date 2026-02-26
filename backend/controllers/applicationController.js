@@ -13,10 +13,22 @@ const { asyncHandler } = require("../middleware/errorHandler");
  * GP: create or get existing draft application (idempotent).
  */
 const createApplication = asyncHandler(async (req, res) => {
-  const application = await applicationService.createOrGetApplication(
-    req.user._id,
-  );
-  res.status(200).json({ success: true, application });
+  const result = await applicationService.createOrGetApplication(req.user._id);
+
+  // Domain conflict: another user from same company already has an application
+  if (result.conflict) {
+    return res.status(409).json({
+      success: false,
+      conflict: true,
+      pendingRequest: result.pendingRequest || false,
+      applicationSubmitted: result.applicationSubmitted || false,
+      existingApplication: result.existingApplication,
+      ownerUser: result.ownerUser,
+      message: "An application already exists for your company domain.",
+    });
+  }
+
+  res.status(200).json({ success: true, application: result.application });
 });
 
 /**
@@ -40,15 +52,89 @@ const getMyApplication = asyncHandler(async (req, res) => {
   const GpApplication = require("../models/GpApplication");
   const application = await GpApplication.findOne({
     userId: req.user._id,
+    deletedAt: null,
   }).lean();
 
   if (!application) {
+    // No application yet — check for domain conflict
+    const conflictCheck = await applicationService.checkCompanyDomainConflict(
+      req.user._id,
+    );
+    if (conflictCheck.conflict) {
+      return res.status(409).json({
+        success: false,
+        conflict: true,
+        pendingRequest: conflictCheck.pendingRequest || false,
+        applicationSubmitted: conflictCheck.applicationSubmitted || false,
+        existingApplication: conflictCheck.existingApplication,
+        ownerUser: conflictCheck.ownerUser,
+        message: "An application already exists for your company domain.",
+      });
+    }
     return res
       .status(404)
       .json({ success: false, message: "No application found." });
   }
 
-  res.status(200).json({ success: true, application });
+  // If this user's application has zero progress, check if another user from the
+  // same domain has an application with actual progress — they should be blocked.
+  const hasNoProgress = (application.stepStatus?.lastCompletedStep || 0) === 0;
+  if (hasNoProgress) {
+    const conflictCheck = await applicationService.checkCompanyDomainConflict(
+      req.user._id,
+    );
+    if (
+      conflictCheck.conflict &&
+      (conflictCheck.existingApplication.stepStatus?.lastCompletedStep || 0) > 0
+    ) {
+      // Soft-delete the empty application so it doesn't block future checks
+      await GpApplication.updateOne(
+        { _id: application._id },
+        { $set: { deletedAt: new Date(), deletedBy: req.user._id } },
+      );
+      return res.status(409).json({
+        success: false,
+        conflict: true,
+        pendingRequest: conflictCheck.pendingRequest || false,
+        applicationSubmitted: conflictCheck.applicationSubmitted || false,
+        existingApplication: conflictCheck.existingApplication,
+        ownerUser: conflictCheck.ownerUser,
+        message: "An application already exists for your company domain.",
+      });
+    }
+  }
+
+  res.status(200).json({
+    success: true,
+    application,
+    submitted: application.applicantProgressStatus === "submitted",
+  });
+});
+
+/**
+ * POST /api/applications/request-access/:id
+ * GP: log an access request for an application they don't own.
+ */
+const requestAccess = asyncHandler(async (req, res) => {
+  await applicationService.requestAccess(req.params.id, req.user._id);
+  res.status(200).json({
+    success: true,
+    message: "Access request logged. The owner has been emailed.",
+  });
+});
+
+/**
+ * GET /api/applications/grant-access/:token
+ * Public (no auth): owner clicks link in email → transfers ownership → redirects
+ */
+const grantAccess = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const result = await applicationService.grantAccess(token);
+
+  // Redirect owner’s browser to a success page
+  res.redirect(
+    `${process.env.MAGIC_LINK_BASE_URL}/apply/access-granted?requester=${encodeURIComponent(result.requesterEmail)}&company=${encodeURIComponent(result.companyName)}&step=${result.continueStep}`,
+  );
 });
 
 /**
@@ -360,6 +446,8 @@ module.exports = {
   createApplication,
   resetApplication,
   getMyApplication,
+  requestAccess,
+  grantAccess,
   saveStep,
   submitApplication,
   uploadFile,

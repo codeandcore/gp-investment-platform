@@ -11,6 +11,8 @@ const {
   createApplication,
   resetApplication,
   getMyApplication,
+  requestAccess,
+  grantAccess,
   saveStep,
   submitApplication,
   uploadFile,
@@ -33,6 +35,10 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
 });
 
+// ─── Public routes (no auth) ─────────────────────────────────────────────────────
+// GET /api/applications/grant-access/:token — owner clicks in email, no session needed
+router.get("/grant-access/:token", grantAccess);
+
 // ─── GP routes ─────────────────────────────────────────────────────────────────
 
 // POST /api/applications  — create or get existing draft (idempotent)
@@ -43,6 +49,14 @@ router.post("/reset", authenticate, authorize("gp"), resetApplication);
 
 // GET /api/applications/my
 router.get("/my", authenticate, authorize("gp"), getMyApplication);
+
+// POST /api/applications/request-access/:id  — GP requests access to another company's application
+router.post(
+  "/request-access/:id",
+  authenticate,
+  authorize("gp"),
+  requestAccess,
+);
 
 // PUT /api/applications/:id/step/:stepNumber  (steps 1-5)
 router.put("/:id/step/:stepNumber", authenticate, authorize("gp"), saveStep);

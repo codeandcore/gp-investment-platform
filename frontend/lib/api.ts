@@ -136,6 +136,12 @@ export const gpApplicationsApi = {
    */
   submit: (applicationId: string) =>
     api.post(`/applications/${applicationId}/submit`),
+
+  /**
+   * Request access to an existing application (company domain conflict scenario).
+   */
+  requestAccess: (applicationId: string) =>
+    api.post(`/applications/request-access/${applicationId}`),
 };
 
 // ─── Reviewers ───────────────────────────────────────────────────────────────
